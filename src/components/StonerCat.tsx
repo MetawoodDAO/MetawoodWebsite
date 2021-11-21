@@ -1,5 +1,5 @@
-import {Alert, Card, CardImg, Image} from "react-bootstrap";
 import {BigNumber} from "ethers";
+import {Button, Heading, Image, Link, Pane, ShareIcon, Text} from "evergreen-ui";
 
 export interface StonerCatAttributes {
     trait_type: "Name"|"Eyes",
@@ -28,19 +28,23 @@ export function StonerCat(props: StonerCatProps) {
     });
 
     return (
-        <Card style={{width: "18rem", textAlign: "center"}}>
-            <CardImg as={Image} variant={"top"} src={props.json.image} />
-            <Card.Body>
-                <Card.Title>
-                    {nameAttribute ? nameAttribute.value : props.json.name}
-                </Card.Title>
-                <Card.Text>
-                    Token id: {props.tokenId.toString()}
-                </Card.Text>
-                <Alert variant={"info"}>
-                    Poster still claimable: {""+props.poster.claimable}
-                </Alert>
-            </Card.Body>
-        </Card>
+        <Pane width={'360px'} marginBottom={'30px'} onClick={() => {console.log("Pane caught a click. id: " + props.tokenId)}}>
+            <Image maxHeight={'360px'} src={props.json.image} />
+            <Heading>
+                {nameAttribute ? nameAttribute.value : props.json.name}
+            </Heading>
+            <Text width={'-webkit-fit-content'}>
+                Token id: {props.tokenId.toString()}
+            </Text>
+            <br />
+            { props.poster.claimable ?
+                <Link href={'https://stonercatsposters.com'} target={'_blank'} rel={'noopener noreferrer'} onClick={(event: any) => {event.preventDefault();}}>
+                    <Button appearance={'primary'} iconAfter={ShareIcon}>
+                        Unclaimed poster! Claim now!
+                    </Button>
+                </Link>
+                : null
+            }
+        </Pane>
     );
 }

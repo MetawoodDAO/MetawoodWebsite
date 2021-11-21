@@ -1,45 +1,48 @@
-import React, {useState} from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import {Alert, Button, Carousel, CarouselItem, Container, ListGroup, ListGroupItem} from "react-bootstrap";
-import {BigNumber, ethers} from "ethers";
+import React, {useEffect, useState} from 'react';
 import {StonerCat, StonerCatProps} from "./components/StonerCat";
+import {Alert, Button, Pane, Text} from "evergreen-ui";
+import {Swiper, SwiperSlide} from "swiper/react/swiper-react";
+import SwiperCore, {
+    Pagination,
+    Navigation
+} from 'swiper';
+import {Web3Controller} from "./ethereum/Web3Controller";
+import {isError} from "./utils/Utils";
+import { StonerCatsContract, StonerCatsPosterContract } from "./ethereum/contracts/StonerCatsContract";
+import 'swiper/swiper-bundle.css';
+import "./App.css";
 
-const STONER_CATS_ADDRESS = "0xD4d871419714B778eBec2E22C7c53572b573706e";
-const STONER_CATS_ABI = [
-    "function tokensOfOwner(address _owner) external view returns(uint256[] memory)",
-    "function tokenURI(uint256 tokenId) public view virtual override returns (string memory)"
-];
-const STONER_CATS_CONTRACT = new ethers.Contract(STONER_CATS_ADDRESS, STONER_CATS_ABI);
+// UI Provided by Evergreen framework
+// https://evergreen.segment.com/foundations
+// https://evergreen.segment.com/components
 
-const STONER_CATS_POSTER_ADDRESS = "0xA58723E04Af0e1c38213036b321e1243F8E16336";
-const STONER_CATS_POSTER_ABI = [
-    "function claimable(uint _tokenId) public view returns(bool)"
-];
-const STONER_CATS_POSTER_CONTRACT = new ethers.Contract(STONER_CATS_POSTER_ADDRESS, STONER_CATS_POSTER_ABI);
+// Literally just an npm module to get a carousel
+// https://swiperjs.com/get-started
+// https://swiperjs.com/demos
+SwiperCore.use([Pagination, Navigation]);
 
-function getProvider(): ethers.providers.Web3Provider {
-    // @ts-ignore
-    if (!window.ethereum) {
-        throw new Error("No crypto wallet found");
-    }
-    // @ts-ignore
-    return new ethers.providers.Web3Provider(window.ethereum);
+interface ChainData {
+    address: string;
+    catProps: StonerCatProps[]
 }
 
 async function updateData(): Promise<ChainData> {
-    const provider = getProvider();
-    const signer = provider.getSigner();
+    const providerBundle = await __web3Controller.getProvider();
 
-    const address = await signer.getAddress();
+    const stonerCatsContract = new StonerCatsContract(providerBundle);
+    const stonerCatsPosterContract = new StonerCatsPosterContract(providerBundle);
 
-    const tokens = await (STONER_CATS_CONTRACT.connect(provider).tokensOfOwner(address)) as BigNumber[];
+    // Load the token ids of the current account
+    const tokens = await stonerCatsContract.tokensOfProvider();
+
     const catProps: StonerCatProps[] = await Promise.all(tokens.map(async (tokenId) => {
-        const claimable = await (STONER_CATS_POSTER_CONTRACT.connect(provider).claimable(tokenId));
-
-
-        const uri = await STONER_CATS_CONTRACT.connect(provider).tokenURI(tokenId) as string;
+        // Load the metadata for the current token
+        const uri = await stonerCatsContract.tokenURI(tokenId);
         const response = await fetch(uri);
         const json = await response.json();
+
+        // Also check to see if the poster is still claimable
+        const claimable = await stonerCatsPosterContract.claimable(tokenId);
 
         return {
             tokenId,
@@ -50,68 +53,113 @@ async function updateData(): Promise<ChainData> {
         }
     }));
 
+    // Return all relevant data
     return {
-        blockNumber: await provider.getBlockNumber(),
-        address,
-        balance: (await signer.getBalance()),
+        address: providerBundle.address,
         catProps
     };
 }
 
-interface ChainData {
-    blockNumber: number;
-    balance: BigNumber;
-    address: string;
-    catProps: StonerCatProps[]
-}
+const __web3Controller = new Web3Controller();
 
 function App() {
+    // Singleton instance of the Web3Controller
+    // The lazy initialization means it'll only create the controller at the start (when it's undefined)
+    // const [web3Controller] = useState<Web3Controller>(() => new Web3Controller());
+
     const [data, setData] = useState<ChainData>({
-        blockNumber: 0,
         address: "No Connected Address",
-        balance: BigNumber.from(0),
         catProps: []
     });
     const [error, setError] = useState<Error>();
 
     async function onClick() {
+        // Clear the error pane
+        setError(undefined);
+
         try {
             setData(await updateData());
         } catch (err: any) {
-            if (err instanceof Error) {
+            if (isError(err)) {
                 setError(err);
             }
+            setData({catProps: [], address: 'No Connected Address'});
         }
     }
 
-    // <ListGroupItem>Balance: {ethers.utils.formatEther(data.balance)}</ListGroupItem>
+    // Run only on first render (because of empty dependencies)
+    useEffect(() => {
+        __web3Controller.addAccountsChangedHandler(async (accounts: string[]) => {
+            if (accounts.length > 0) {
+                await onClick();
+            } else {
+                setError(new Error('No available accounts to connect to'));
+            }
+        });
+        __web3Controller.addChainChangedHandler(async (newChainId: number) => {
+            await onClick();
+        });
+
+        // Attempt to attach to the web3 event hooks
+        const result = __web3Controller.attach();
+
+        // If unable to attach (web3 wasn't injected) then tell the user
+        if (!result.success) {
+            setError(new Error(result.message));
+            return;
+        }
+
+        return () => { __web3Controller.detatch() };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     return (
-        <Container fluid>
+        <Pane clearfix>
+            <ErrorMessage errorMessage={error?.message} />
             <Button onClick={() => onClick()}>
                 Update
             </Button>
-            {data ?
-                <ListGroup>
-                    <ListGroupItem>Block Number: {data.blockNumber}</ListGroupItem>
-                    <ListGroupItem>Address: {data.address}</ListGroupItem>
-                </ListGroup> : null }
-            <Container fluid={"md"} >
-                <Carousel variant={"dark"}>
-                    {data.catProps.map((stonerCatProps) => {
-                        return (
-                            <CarouselItem>
+            <Button onClick={() => {setData({...data, catProps: []})}}>
+                Reset
+            </Button>
+            <Pane>
+                <Text >Address: {data.address}</Text>
+            </Pane>
+            <br />
 
-                                <div style={{width: "100%"}} className={"justify-content-md-center"}>
-                                    <StonerCat tokenId={stonerCatProps.tokenId} json={stonerCatProps.json} poster={stonerCatProps.poster} />
-                                </div>
+            {data.catProps.length > 0 ?
+            <Swiper slidesPerView={(data.catProps.length > 2) ? 2 : 1}
+                    centeredSlides={true}
+                    navigation={true}
+                    loop={true}
+                    pagination={true}
+                    onSlideChange={(swiper) => {
+                        // This drops a callback when the slide changes.
+                        // BUT it has an issue when loop=true
+                        // where it sometimes fires off the same index twice when wrapping
 
-                            </CarouselItem>
-                        );
-                    })}
-                </Carousel>
-            </Container>
-            <ErrorMessage errorMessage={error?.message} />
-        </Container>
+                        // console.log(`did THIS swipe? ${swiper.realIndex}`);
+                    }}
+                    onSwiper={swiper => {
+                        // This method might just mean the swiper is ready
+                        // console.log(`Swiped to index: ${swiper.realIndex}`);
+                    }}
+                    onClick={(swiper, event) => {
+                        // console.log(`realIndex: ${swiper.realIndex} == ${data.catProps[swiper.realIndex % data.catProps.length].tokenId}`);
+                    }}>
+                {data.catProps.map((stonerCatProps) => {
+                    return (
+                        <SwiperSlide key={stonerCatProps.tokenId.toString()}>
+                            {(<StonerCat tokenId={stonerCatProps.tokenId}
+                                       json={stonerCatProps.json}
+                                       poster={stonerCatProps.poster} />)
+                            }
+                        </SwiperSlide>
+                    );
+            })}
+            </Swiper>
+                : null}
+        </Pane>
     );
 }
 
@@ -120,7 +168,7 @@ function ErrorMessage(props: {errorMessage?: string}) {
         return null;
     }
     return (
-        <Alert variant={"danger"}>
+        <Alert>
             {props.errorMessage}
         </Alert>
     );

@@ -5,12 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5379cf6a-5e2d-4aa0-a8e8-0a481a0430bf" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/nucleusdao.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/Header.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/StonerCatCarousel.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/StonerCatCarouselItem.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ethereum/Web3Types.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ethereum/contracts/OniRoninContract.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ethereum/contracts/base/ERC721.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ethereum/gnosis/GnosisController.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/StonerCat.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/StonerCat.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/StonerCat.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ethereum/Web3Controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/Web3Controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ethereum/contracts/StonerCatsContract.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/contracts/StonerCatsContract.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/Utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/Utils.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -26,6 +36,7 @@
       <list>
         <option value="CSS File" />
         <option value="TypeScript File" />
+        <option value="TypeScript JSX File" />
       </list>
     </option>
   </component>
@@ -125,7 +136,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1637380911914</updated>
-      <workItem from="1637380917580" duration="33064000" />
+      <workItem from="1637380917580" duration="33966000" />
+      <workItem from="1637530828921" duration="56778000" />
     </task>
     <servers />
   </component>
@@ -137,10 +149,17 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="false" />
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>

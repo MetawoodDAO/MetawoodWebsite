@@ -1,51 +1,165 @@
-import {ethers, Signer} from "ethers";
-import {isError} from "../utils/Utils";
+import {BigNumber, ethers} from "ethers";
+import {isWeb3Failure, ProviderBundle, Web3FailureReason} from "./Web3Types";
 
 export type AccountsChangedHandler = (accounts: Array<string>) => void | Promise<void>;
 export type ChainChangedHandler = (newChainId: number) => void | Promise<void>;
-export type AttachResult = {success: true} | {success: false, message: string};
-
-export interface ProviderBundle {
-    provider: ethers.providers.Web3Provider;
-    signer: Signer;
-    address: string;
-}
+export type ConnectedHandler = (chainId: number) => void | Promise<void>;
 
 export class Web3Controller {
-    private accountsChangedHandlers: AccountsChangedHandler[] = [];
-    private chainChangedHandlers: ChainChangedHandler[] = [];
+    private readonly ethereum = getEthereum();
 
-    readonly accountsChanged = (accounts: Array<string>) => {
-        Promise.all(this.accountsChangedHandlers.map(async (handler) => {
-            await handler(accounts);
-        }));
+    private providerOrFailure: ethers.providers.Web3Provider | Web3FailureReason = {reason: "NOT_INSTALLED"};
+    private signerAddress?: string;
+
+    //
+    // Public methods
+    //
+
+    public async getProviderBundle(refreshProvider = false, askToSwitchNetworks = false): Promise<ProviderBundle> {
+        if (refreshProvider) {
+            await this.updateProvider(true, askToSwitchNetworks);
+        }
+
+        return isWeb3Failure(this.providerOrFailure) ? this.providerOrFailure : {
+            provider: this.providerOrFailure,
+            address: this.getCurrentSignerAddress(),
+        };
     }
 
-    readonly chainChanged = (chainIdHex: string) => {
-        const newChainId = ethers.BigNumber.from(chainIdHex).toNumber();
-        Promise.all(this.chainChangedHandlers.map(async (handler) => {
-            await handler(newChainId);
-        }));
+    public getCurrentSignerAddress(): string {
+        if (this.signerAddress === undefined) {
+            throw new Error("Provider not set up - unable to provide address");
+        }
+        return this.signerAddress;
     }
 
-    readonly ethMessage = (...args: any) => {
-        console.log('ETH MESSAGE');
-        console.log(args);
+    public async switchWalletChain(ethereum: InjectedEthereum, chainId: string) {
+        await ethereum.request({method: 'wallet_switchEthereumChain', params: [
+                { chainId }
+            ]});
     }
 
-    readonly connected = (args: {chainId: string}[]) => {
-        console.log('Web3 CONNECTED');
-    }
-
-    readonly disconnected = (args: {chainId: string}[]) => {
-        console.log('DISCONNECTED');
-        console.log(args);
-    }
-
-    attach(): AttachResult {
-        const ethereum = getEthereum();
+    public async getMetaMaskMetaData(ethereum?: InjectedEthereum): Promise<object | undefined> {
         if (!ethereum) {
-            return {success: false, message: "Web3 not injected. Is MetaMask installed?"};
+            return;
+        }
+
+        const request = async (method: string, params?: object) => {
+            try {
+                return await ethereum.request({method, ...params});
+            } catch (err) {
+                // const metamaskError = err as {message: string, code: number, data?: unknown};
+                console.log(`MetaMask Error on method: ${method}`);
+                return "--> ERROR DURING REQUEST <--";
+            }
+        }
+
+        const clientVersion = await request('web3_clientVersion') as string;
+        //const sha3 = await request('web3_sha3', {data: '0x68656c6c6f20776f726c64'}) as string; // This function encodes some data into sha3
+        const version = await request('net_version') as string;
+        const peerCount = await request('net_peerCount') as string;
+        const listening = await request('net_listening') as boolean;
+        const protocolVersion = await request('eth_protocolVersion') as string;
+        const syncing = await request('eth_syncing') as boolean;
+        const coinbase = await request('eth_coinbase') as string;
+        const mining = await request('eth_mining') as string;
+        const hashrate = await request('eth_hashrate') as string;
+        const gasPrice = await request('eth_gasPrice') as string;
+        // const accounts // done elsewhere
+        // const blockNumber // available via provider
+        // const balance // available via provider
+        // const getStorageAt // function
+
+        return {
+            web3: {
+                clientVersion,
+                //sha3,
+            },
+            net: {
+                version,
+                peerCount: BigNumber.from(peerCount).toString(),
+                listening,
+            },
+            eth: {
+                protocolVersion,
+                syncing,
+                coinbase,
+                mining,
+                hashrate,
+                gasPrice,
+            },
+        };
+    }
+
+    //
+    // Setting up the Provider
+    //
+
+    private async updateProvider(showMetamaskPopup: boolean, askToSwitchNetworks: boolean): Promise<void> {
+        this.signerAddress = undefined;
+
+        // First check that there's even an injected 'ethereum' global
+
+        const ethereum = this.ethereum;
+        if (!ethereum) {
+            this.providerOrFailure = {reason: "NOT_INSTALLED"};
+            return;
+        }
+
+        // Then ensure we're on Mainnet
+
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const network = await provider.getNetwork();
+        const chainId = network.chainId;
+
+        if (chainId !== 1) {
+            if (askToSwitchNetworks) {
+                try {
+                    await this.switchWalletChain(ethereum, "0x1");
+                    this.providerOrFailure = {reason: "PENDING_NETWORK_SWITCH"};
+                    return;
+                } catch (err) {
+                    // User denied the switch.
+                    // Fall through to NOT_MAINNET
+                }
+            }
+            this.providerOrFailure = { reason: "NOT_MAINNET", chainId };
+            return;
+        }
+
+        // Then see if there are any connected Accounts, and prompt if user-initiated
+
+        const availableAccounts = await provider.listAccounts();
+
+        if (availableAccounts.length === 0) {
+            if (showMetamaskPopup) {
+                try {
+                    // Show the Metamask Popup
+                    await ethereum.request({method: 'eth_requestAccounts'});
+
+                    this.providerOrFailure = {reason: "PENDING_CONNECTION"};
+                    return;
+                } catch (err) {
+                    // User clicked "Cancel" on Metamask popup
+                    // Fall through to NOT_CONNECTED
+                }
+            }
+            this.providerOrFailure = {reason: "NOT_CONNECTED"};
+            return;
+        }
+
+        this.providerOrFailure = provider;
+        this.signerAddress = await provider.getSigner().getAddress();
+    }
+
+    //
+    // Event callbacks
+    //
+
+    public attach(): Web3FailureReason | undefined {
+        const ethereum = this.ethereum;
+        if (!ethereum) {
+            return {reason: "NOT_INSTALLED"}
         }
 
         ethereum.on('accountsChanged', this.accountsChanged);
@@ -53,12 +167,10 @@ export class Web3Controller {
         ethereum.on('message', this.ethMessage);
         ethereum.on('connect', this.connected);
         ethereum.on('disconnect', this.disconnected);
-
-        return {success: true};
     }
 
-    detatch() {
-        const ethereum = getEthereum();
+    public detatch() {
+        const ethereum = this.ethereum;
         if (!ethereum) {
             return;
         }
@@ -78,55 +190,46 @@ export class Web3Controller {
         this.chainChangedHandlers.push(handler);
     }
 
-    //
-    //
-    //
+    public addConnectedHandler(handler: ConnectedHandler) {
+        this.connectedHandlers.push(handler);
+    }
 
-    public async getProvider(): Promise<ProviderBundle> {
-        const ethereum = getEthereum();
+    private readonly accountsChangedHandlers: AccountsChangedHandler[] = [];
+    private readonly chainChangedHandlers: ChainChangedHandler[] = [];
+    private readonly connectedHandlers: ConnectedHandler[] = [];
 
-        // @ts-ignore
-        if (!ethereum) {
-            throw new Error("No crypto wallet found");
-        }
+    private readonly accountsChanged = async (accounts: Array<string>) => {
+        await this.updateProvider(false, false);
+        Promise.all(this.accountsChangedHandlers.map(async (handler) => {
+            await handler(accounts);
+        }));
+    }
 
-        try {
-            await ethereum.request({method: 'eth_requestAccounts'});
-        } catch (err: any) {
-            const metamaskError = err as {message: string, code: number, data?: unknown};
-            throw new Error(metamaskError.message);
-        }
+    private readonly chainChanged = async (chainIdHex: string) => {
+        await this.updateProvider(false, false);
+        const newChainId = ethers.BigNumber.from(chainIdHex).toNumber();
+        Promise.all(this.chainChangedHandlers.map(async (handler) => {
+            await handler(newChainId);
+        }));
+    }
 
-        //const {chainId, networkVersion, isMetaMask} = ethereum;
-        //console.log(`[WINDOW] chainId: ${chainId} - networkVersion: ${networkVersion} - isMetaMask: ${isMetaMask}`);
+    private readonly ethMessage = (...args: any) => {
+        console.log('-- ETH MESSAGE --');
+        console.log(args);
+    }
 
-        const provider = new ethers.providers.Web3Provider(ethereum);
+    private readonly connected = async (args: {chainId: string}) => {
+        await this.updateProvider(false, false);
+        const chainId = ethers.BigNumber.from(args.chainId).toNumber();
+        Promise.all(this.connectedHandlers.map(async (handler) => {
+            await handler(chainId);
+        }));
+    }
 
-        const network = await provider.detectNetwork();
-        // console.log(`[PROVIDER] chainId: ${network.chainId} - name: ${network.name} - ensAddress: ${network.ensAddress}`);
-        if (network.chainId !== 1) {
-            throw new Error(`Must be on mainnet. Current network id: ${network.chainId}`);
-        }
-
-
-        const signer = provider.getSigner();
-        try {
-            const address = await signer.getAddress();
-            if (!address) {
-                throw new Error("No address found for Signer");
-            }
-        } catch (err: any) {
-            if (isError(err)) {
-                console.error(err.message);
-            }
-            throw new Error("Unable to load address for signer");
-        }
-
-        return {
-            provider,
-            signer,
-            address: await signer.getAddress()
-        };
+    private readonly disconnected = async (args: {chainId: string}[]) => {
+        await this.updateProvider(false, false);
+        console.log('-- DISCONNECTED --');
+        console.log(args);
     }
 }
 

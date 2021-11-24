@@ -1,3 +1,12 @@
+#USE YARN. NOT NPM.
+
+##Some metamask/web3 docs:
+- https://docs.metamask.io/guide/ethereum-provider.html
+- https://docs.metamask.io/guide/rpc-api.html#table-of-contents
+- https://eth.wiki/json-rpc/API#json-rpc-methods
+ 
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

@@ -1,34 +1,58 @@
-import {BigNumber, ethers} from "ethers";
-import {ProviderBundle} from "../Web3Controller";
+import {BigNumber, ethers, providers} from "ethers";
+import {Address} from "../Web3Types";
+import {asERC721, ERC721ABI, ERC721Contract} from "./base/ERC721";
+
+export interface StonerCatAttributes {
+    trait_type: "Name"|"Eyes"|"Left Arm"|"Right Arm"|"Expressions"|"Collars"|"Backdrops"|"Accessories",
+    value: string
+}
+
+export interface StonerCat {
+    tokenId: BigNumber;
+    catData: {
+        name: string;
+        image: string;
+        attributes: StonerCatAttributes[];
+    }
+}
 
 const STONER_CATS_ADDRESS = "0xD4d871419714B778eBec2E22C7c53572b573706e";
-const STONER_CATS_ABI = [
+const STONER_CATS_ABI = ERC721ABI([
     "function tokensOfOwner(address _owner) external view returns(uint256[] memory)",
-    "function tokenURI(uint256 tokenId) public view virtual override returns (string memory)"
-];
-export const STONER_CATS_CONTRACT = new ethers.Contract(STONER_CATS_ADDRESS, STONER_CATS_ABI);
+]);
 
 export class StonerCatsContract {
-    private readonly providerBundle;
-    private readonly contract;
+    private readonly contract: ethers.Contract;
+    public readonly ERC721: ERC721Contract;
 
-    constructor(providerBundle: ProviderBundle) {
-        this.providerBundle = providerBundle;
-        this.contract = STONER_CATS_CONTRACT.connect(providerBundle.provider);
+    constructor(provider: ethers.providers.Web3Provider) {
+        this.contract = new ethers.Contract(STONER_CATS_ADDRESS, STONER_CATS_ABI, provider);
+        this.ERC721 = asERC721(this.contract);
     }
 
-    async tokensOfProvider(): Promise<BigNumber[]> {
-        return await this.tokensOfOwner(this.providerBundle.address);
+    async getTokenIdsOfCurrentProvider(): Promise<BigNumber[]> {
+        return await this.tokensOfOwner(await (this.contract.provider as providers.Web3Provider).getSigner().getAddress());
     }
 
-    async tokensOfOwner(ownerAddress: string): Promise<BigNumber[]> {
+    async tokensOfOwner(ownerAddress: Address): Promise<BigNumber[]> {
         const result = await this.contract.tokensOfOwner(ownerAddress);
         return result as BigNumber[];
     }
 
-    async tokenURI(tokenId: BigNumber): Promise<string> {
-        const result = await this.contract.tokenURI(tokenId);
-        return result as string;
+    async getStonerCats(address: Address): Promise<StonerCat[]> {
+        const tokenIds = await this.tokensOfOwner(address);
+        const erc721 = asERC721(this.contract);
+        return await Promise.all(tokenIds.map(async (tokenId) => {
+            const data = await erc721.fullyResolveURI(tokenId);
+            return {
+                tokenId,
+                catData: data
+            };
+        }));
+    }
+
+    async getStonerCatsOfCurrentProvider(): Promise<StonerCat[]> {
+        return await this.getStonerCats(await (this.contract.provider as providers.Web3Provider).getSigner().getAddress());
     }
 }
 
@@ -36,18 +60,26 @@ const STONER_CATS_POSTER_ADDRESS = "0xA58723E04Af0e1c38213036b321e1243F8E16336";
 const STONER_CATS_POSTER_ABI = [
     "function claimable(uint _tokenId) public view returns(bool)"
 ];
-export const STONER_CATS_POSTER_CONTRACT = new ethers.Contract(STONER_CATS_POSTER_ADDRESS, STONER_CATS_POSTER_ABI);
+
+export interface StonerCatPoster {
+    claimable: boolean;
+}
 
 export class StonerCatsPosterContract {
-    private readonly providerBundle;
     private readonly contract;
+    private readonly ERC721;
 
-    constructor (providerBundle: ProviderBundle) {
-        this.providerBundle = providerBundle;
-        this.contract = STONER_CATS_POSTER_CONTRACT.connect(providerBundle.provider);
+    constructor (provider: ethers.providers.Web3Provider) {
+        this.contract = new ethers.Contract(STONER_CATS_POSTER_ADDRESS, ERC721ABI(STONER_CATS_POSTER_ABI), provider);
+        this.ERC721 = asERC721(this.contract);
     }
 
     async claimable(tokenId: BigNumber): Promise<boolean> {
         return await this.contract.claimable(tokenId);
     }
+}
+
+export interface StonerCatAndPoster {
+    cat: StonerCat;
+    poster: StonerCatPoster;
 }

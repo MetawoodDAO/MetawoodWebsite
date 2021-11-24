@@ -15,11 +15,7 @@ export class Web3Controller {
     // Public methods
     //
 
-    public async getProviderBundle(refreshProvider = false, askToSwitchNetworks = false): Promise<ProviderBundle> {
-        if (refreshProvider) {
-            await this.updateProvider(true, askToSwitchNetworks);
-        }
-
+    public getProviderBundle(): ProviderBundle {
         return isWeb3Failure(this.providerOrFailure) ? this.providerOrFailure : {
             provider: this.providerOrFailure,
             address: this.getCurrentSignerAddress(),
@@ -95,7 +91,7 @@ export class Web3Controller {
     // Setting up the Provider
     //
 
-    private async updateProvider(showMetamaskPopup: boolean, askToSwitchNetworks: boolean): Promise<void> {
+    public async updateProvider(showMetamaskPopup: boolean, askToSwitchNetworks: boolean): Promise<void> {
         this.signerAddress = undefined;
 
         // First check that there's even an injected 'ethereum' global
@@ -199,6 +195,8 @@ export class Web3Controller {
     private readonly connectedHandlers: ConnectedHandler[] = [];
 
     private readonly accountsChanged = async (accounts: Array<string>) => {
+        console.log("Accounts Changed");
+        console.log(accounts);
         await this.updateProvider(false, false);
         Promise.all(this.accountsChangedHandlers.map(async (handler) => {
             await handler(accounts);

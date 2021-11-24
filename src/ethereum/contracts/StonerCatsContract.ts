@@ -1,58 +1,26 @@
-import {BigNumber, ethers, providers} from "ethers";
-import {Address} from "../Web3Types";
-import {asERC721, ERC721ABI, ERC721Contract} from "./base/ERC721";
+import {BigNumber, ethers} from "ethers";
+import {asERC721, ERC721ABI, ERC721Contract, ERC721Token, TokenAttributes} from "./base/ERC721";
 
-export interface StonerCatAttributes {
-    trait_type: "Name"|"Eyes"|"Left Arm"|"Right Arm"|"Expressions"|"Collars"|"Backdrops"|"Accessories",
-    value: string
-}
+type StonerCatTraits = "Name"|"Eyes"|"Left Arm"|"Right Arm"|"Expressions"|"Collars"|"Backdrops"|"Accessories";
 
 export interface StonerCat {
-    tokenId: BigNumber;
-    catData: {
-        name: string;
-        image: string;
-        attributes: StonerCatAttributes[];
-    }
+    name: string;
+    image: string;
+    attributes: TokenAttributes<StonerCatTraits>[];
 }
 
 const STONER_CATS_ADDRESS = "0xD4d871419714B778eBec2E22C7c53572b573706e";
-const STONER_CATS_ABI = ERC721ABI([
-    "function tokensOfOwner(address _owner) external view returns(uint256[] memory)",
-]);
+const STONER_CATS_ABI = [
+    "function tokensOfOwner(address _owner) external view returns(uint256[] memory)", // Unnecessary, thanks to helper function in ERC721
+];
 
 export class StonerCatsContract {
     private readonly contract: ethers.Contract;
-    public readonly ERC721: ERC721Contract;
+    public readonly ERC721: ERC721Contract<StonerCat>;
 
     constructor(provider: ethers.providers.Web3Provider) {
-        this.contract = new ethers.Contract(STONER_CATS_ADDRESS, STONER_CATS_ABI, provider);
+        this.contract = new ethers.Contract(STONER_CATS_ADDRESS, ERC721ABI(STONER_CATS_ABI), provider);
         this.ERC721 = asERC721(this.contract);
-    }
-
-    async getTokenIdsOfCurrentProvider(): Promise<BigNumber[]> {
-        return await this.tokensOfOwner(await (this.contract.provider as providers.Web3Provider).getSigner().getAddress());
-    }
-
-    async tokensOfOwner(ownerAddress: Address): Promise<BigNumber[]> {
-        const result = await this.contract.tokensOfOwner(ownerAddress);
-        return result as BigNumber[];
-    }
-
-    async getStonerCats(address: Address): Promise<StonerCat[]> {
-        const tokenIds = await this.tokensOfOwner(address);
-        const erc721 = asERC721(this.contract);
-        return await Promise.all(tokenIds.map(async (tokenId) => {
-            const data = await erc721.fullyResolveURI(tokenId);
-            return {
-                tokenId,
-                catData: data
-            };
-        }));
-    }
-
-    async getStonerCatsOfCurrentProvider(): Promise<StonerCat[]> {
-        return await this.getStonerCats(await (this.contract.provider as providers.Web3Provider).getSigner().getAddress());
     }
 }
 
@@ -80,6 +48,6 @@ export class StonerCatsPosterContract {
 }
 
 export interface StonerCatAndPoster {
-    cat: StonerCat;
+    cat: ERC721Token<StonerCat>;
     poster: StonerCatPoster;
 }

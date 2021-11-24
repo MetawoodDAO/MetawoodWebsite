@@ -2,6 +2,7 @@ import {Swiper, SwiperSlide} from "swiper/react/swiper-react";
 import { StonerCatCarouselItem } from "./StonerCatCarouselItem";
 import React from "react";
 import { StonerCatAndPoster } from "../ethereum/contracts/StonerCatsContract";
+import {Text} from "evergreen-ui";
 
 export interface StonerCatCarouselProps {
     catProps: StonerCatAndPoster[];
@@ -37,5 +38,5 @@ export function StonerCatCarousel(props: StonerCatCarouselProps) {
                     </SwiperSlide>
                 );
             })}
-        </Swiper> : null;
+        </Swiper> : <Text fontWeight={'bold'}>No Stoner Cats Found</Text>;
 }

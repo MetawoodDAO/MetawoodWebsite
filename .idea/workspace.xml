@@ -5,23 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5379cf6a-5e2d-4aa0-a8e8-0a481a0430bf" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/components/Header.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/StonerCatCarousel.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/StonerCatCarouselItem.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ethereum/Web3Types.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ethereum/contracts/OniRoninContract.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ethereum/contracts/base/ERC721.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ethereum/gnosis/GnosisController.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/StonerCat.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/StonerCatCarousel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/StonerCatCarousel.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/StonerCatCarouselItem.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/StonerCatCarouselItem.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ethereum/Web3Controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/Web3Controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ethereum/contracts/OniRoninContract.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/contracts/OniRoninContract.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ethereum/contracts/StonerCatsContract.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/contracts/StonerCatsContract.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/Utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/Utils.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ethereum/contracts/base/ERC721.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/contracts/base/ERC721.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -137,7 +129,7 @@
       <option name="presentableId" value="Default" />
       <updated>1637380911914</updated>
       <workItem from="1637380917580" duration="33966000" />
-      <workItem from="1637530828921" duration="56778000" />
+      <workItem from="1637530828921" duration="64386000" />
     </task>
     <servers />
   </component>

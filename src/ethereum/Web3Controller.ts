@@ -1,33 +1,37 @@
 import {BigNumber, ethers} from "ethers";
-import {isWeb3Failure, ProviderBundle, Web3FailureReason} from "./Web3Types";
+import {Dispatch} from "@reduxjs/toolkit";
+import {isWeb3Failure, ProviderBundle} from "./Web3Types";
+import {updateStonerCatData} from "./contracts/StonerCatsContract";
+import {loadGnosisData} from "./gnosis/GnosisController";
+import {updateWeb3State} from "../redux/Web3Slice";
 
 export type AccountsChangedHandler = (accounts: Array<string>) => void | Promise<void>;
 export type ChainChangedHandler = (newChainId: number) => void | Promise<void>;
-export type ConnectedHandler = (chainId: number) => void | Promise<void>;
+
+const LISTENERS: ((bundle: ProviderBundle, dispatch: Dispatch)=>void)[] = [
+    updateStonerCatData,
+    loadGnosisData,
+];
 
 export class Web3Controller {
     private readonly ethereum = getEthereum();
+    private readonly dispatch;
 
-    private providerOrFailure: ethers.providers.Web3Provider | Web3FailureReason = {reason: "NOT_INSTALLED"};
-    private signerAddress?: string;
+    constructor(dispatch: Dispatch) {
+        this.dispatch = dispatch;
+        this.attach();
+    }
+
+    public showMetamaskAccountPopup() {
+        const ethereum = this.ethereum;
+        if (ethereum) {
+            return ethereum.request({method: 'eth_requestAccounts'});
+        }
+    }
 
     //
     // Public methods
     //
-
-    public getProviderBundle(): ProviderBundle {
-        return isWeb3Failure(this.providerOrFailure) ? this.providerOrFailure : {
-            provider: this.providerOrFailure,
-            address: this.getCurrentSignerAddress(),
-        };
-    }
-
-    public getCurrentSignerAddress(): string {
-        if (this.signerAddress === undefined) {
-            throw new Error("Provider not set up - unable to provide address");
-        }
-        return this.signerAddress;
-    }
 
     public async switchWalletChain(ethereum: InjectedEthereum, chainId: string) {
         await ethereum.request({method: 'wallet_switchEthereumChain', params: [
@@ -92,13 +96,13 @@ export class Web3Controller {
     //
 
     public async updateProvider(showMetamaskPopup: boolean, askToSwitchNetworks: boolean): Promise<void> {
-        this.signerAddress = undefined;
 
         // First check that there's even an injected 'ethereum' global
 
         const ethereum = this.ethereum;
         if (!ethereum) {
-            this.providerOrFailure = {reason: "NOT_INSTALLED"};
+            this.notifyListeners({reason: "NOT_INSTALLED"});
+            //this.dispatch(updateProvider({reason: "NOT_INSTALLED"}));
             return;
         }
 
@@ -112,14 +116,16 @@ export class Web3Controller {
             if (askToSwitchNetworks) {
                 try {
                     await this.switchWalletChain(ethereum, "0x1");
-                    this.providerOrFailure = {reason: "PENDING_NETWORK_SWITCH"};
+                    this.notifyListeners({reason: "PENDING_NETWORK_SWITCH"});
+                    //this.dispatch(updateProvider({reason: "PENDING_NETWORK_SWITCH"}));
                     return;
                 } catch (err) {
                     // User denied the switch.
                     // Fall through to NOT_MAINNET
                 }
             }
-            this.providerOrFailure = { reason: "NOT_MAINNET", chainId };
+            this.notifyListeners({reason: "NOT_MAINNET", chainId});
+            //this.dispatch(updateProvider({ reason: "NOT_MAINNET", chainId }));
             return;
         }
 
@@ -133,29 +139,50 @@ export class Web3Controller {
                     // Show the Metamask Popup
                     await ethereum.request({method: 'eth_requestAccounts'});
 
-                    this.providerOrFailure = {reason: "PENDING_CONNECTION"};
+                    this.notifyListeners({reason: "PENDING_CONNECTION"});
+                    //this.dispatch(updateProvider({reason: "PENDING_CONNECTION"}));
                     return;
                 } catch (err) {
                     // User clicked "Cancel" on Metamask popup
                     // Fall through to NOT_CONNECTED
                 }
             }
-            this.providerOrFailure = {reason: "NOT_CONNECTED"};
+            this.notifyListeners({reason: "NOT_CONNECTED"});
+            //this.dispatch(updateProvider({reason: "NOT_CONNECTED"}));
             return;
         }
 
-        this.providerOrFailure = provider;
-        this.signerAddress = await provider.getSigner().getAddress();
+        const address = await provider.getSigner().getAddress();
+
+        this.notifyListeners({
+            provider,
+            address,
+        });
+        //this.dispatch(updateProvider({
+        //    provider,
+        //    address,
+        //}));
+    }
+
+    private notifyListeners(bundle: ProviderBundle) {
+        if (isWeb3Failure(bundle)) {
+            this.dispatch(updateWeb3State({connected: false, reason: bundle}));
+        } else {
+            this.dispatch(updateWeb3State({connected: true, address: bundle.address}));
+        }
+        LISTENERS.forEach((listener) => {
+            listener(bundle, this.dispatch);
+        });
     }
 
     //
     // Event callbacks
     //
 
-    public attach(): Web3FailureReason | undefined {
+    public attach() {
         const ethereum = this.ethereum;
         if (!ethereum) {
-            return {reason: "NOT_INSTALLED"}
+            return;
         }
 
         ethereum.on('accountsChanged', this.accountsChanged);
@@ -165,50 +192,12 @@ export class Web3Controller {
         ethereum.on('disconnect', this.disconnected);
     }
 
-    public detatch() {
-        const ethereum = this.ethereum;
-        if (!ethereum) {
-            return;
-        }
-
-        ethereum.removeListener('accountsChanged', this.accountsChanged);
-        ethereum.removeListener('chainChanged', this.chainChanged);
-        ethereum.removeListener('message', this.ethMessage);
-        ethereum.removeListener('connect', this.connected);
-        ethereum.removeListener('disconnect', this.disconnected);
-    }
-
-    public addAccountsChangedHandler(handler: AccountsChangedHandler) {
-        this.accountsChangedHandlers.push(handler);
-    }
-
-    public addChainChangedHandler(handler: ChainChangedHandler) {
-        this.chainChangedHandlers.push(handler);
-    }
-
-    public addConnectedHandler(handler: ConnectedHandler) {
-        this.connectedHandlers.push(handler);
-    }
-
-    private readonly accountsChangedHandlers: AccountsChangedHandler[] = [];
-    private readonly chainChangedHandlers: ChainChangedHandler[] = [];
-    private readonly connectedHandlers: ConnectedHandler[] = [];
-
     private readonly accountsChanged = async (accounts: Array<string>) => {
-        console.log("Accounts Changed");
-        console.log(accounts);
         await this.updateProvider(false, false);
-        Promise.all(this.accountsChangedHandlers.map(async (handler) => {
-            await handler(accounts);
-        }));
     }
 
     private readonly chainChanged = async (chainIdHex: string) => {
         await this.updateProvider(false, false);
-        const newChainId = ethers.BigNumber.from(chainIdHex).toNumber();
-        Promise.all(this.chainChangedHandlers.map(async (handler) => {
-            await handler(newChainId);
-        }));
     }
 
     private readonly ethMessage = (...args: any) => {
@@ -217,17 +206,14 @@ export class Web3Controller {
     }
 
     private readonly connected = async (args: {chainId: string}) => {
+        console.log("Connected.");
         await this.updateProvider(false, false);
-        const chainId = ethers.BigNumber.from(args.chainId).toNumber();
-        Promise.all(this.connectedHandlers.map(async (handler) => {
-            await handler(chainId);
-        }));
     }
 
     private readonly disconnected = async (args: {chainId: string}[]) => {
-        await this.updateProvider(false, false);
         console.log('-- DISCONNECTED --');
         console.log(args);
+        await this.updateProvider(false, false);
     }
 }
 

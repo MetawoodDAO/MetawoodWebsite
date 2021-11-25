@@ -2,10 +2,17 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import {Web3Controller} from "./ethereum/Web3Controller";
+import {Provider} from "react-redux";
+import {Store} from "./redux/ReduxStore";
+
+const web3Controller = new Web3Controller(Store.dispatch);
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+      <Provider store={Store}>
+        <App connectToMetaMask={() => { web3Controller.showMetamaskAccountPopup(); }} />
+      </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );

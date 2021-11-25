@@ -1,17 +1,14 @@
 import {Swiper, SwiperSlide} from "swiper/react/swiper-react";
 import { StonerCatCarouselItem } from "./StonerCatCarouselItem";
 import React from "react";
-import { StonerCatAndPoster } from "../ethereum/contracts/StonerCatsContract";
 import {Text} from "evergreen-ui";
+import {useAppSelector} from "../redux/ReduxStore";
 
-export interface StonerCatCarouselProps {
-    catProps: StonerCatAndPoster[];
-}
+export function StonerCatCarousel() {
+    const cats = useAppSelector(state => state.stonerCats.catsAndPosters);
 
-export function StonerCatCarousel(props: StonerCatCarouselProps) {
-    const {catProps} = props;
-    return catProps.length > 0 ?
-        <Swiper slidesPerView={(catProps.length > 2) ? 2 : 1}
+    return cats !== undefined && cats.length > 0 ?
+        <Swiper slidesPerView={(cats.length > 2) ? 2 : 1}
                 centeredSlides={true}
                 navigation={true}
                 loop={true}
@@ -29,14 +26,15 @@ export function StonerCatCarousel(props: StonerCatCarouselProps) {
                 }}
                 onClick={(swiper, event) => {
                     // console.log(`realIndex: ${swiper.realIndex} == ${data.catProps[swiper.realIndex % data.catProps.length].tokenId}`);
-                }}
-        >
-            {catProps.map((stonerCatProps) => {
+                }}>
+
+            {cats.map((stonerCatAndPoster) => {
                 return (
-                    <SwiperSlide key={stonerCatProps.cat.tokenId.toString()}>
-                        {(<StonerCatCarouselItem {...stonerCatProps} />)}
+                    <SwiperSlide key={stonerCatAndPoster.cat.tokenId.toString()}>
+                        {(<StonerCatCarouselItem {...stonerCatAndPoster} />)}
                     </SwiperSlide>
                 );
             })}
-        </Swiper> : <Text fontWeight={'bold'}>No Stoner Cats Found</Text>;
+        </Swiper> :
+        <Text fontWeight={'bold'}>No Stoner Cats Found</Text>;
 }

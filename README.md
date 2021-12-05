@@ -6,6 +6,21 @@
 - https://eth.wiki/json-rpc/API#json-rpc-methods
  
 
+# Debugging with IntelliJ
+## Ensure running from yarn
+In the project settings (ctrl-alt-s) in **"Languages & Frameworks" -> "Node.js and NPM"** there is an option to set the Package Manager. Set this to yarn.
+## Set browser and profile
+Once a browser/profile is open, debuggers cannot connect to it (it must be launched with flags).
+
+The steps are:
+- Make sure the "start" run configuration is selected
+- Click the debug icon to start debugging
+- Wait for the **"Process Console | Scripts" > "Process Console"** to settle down
+- (If a tab opened in a "normal" chrome window, you can close it)
+- **CTRL+SHIFT+Click** on the "Local" link to connect. This opens the dev profile (You may have to install Metamask to this profile too)
+
+It also turns out that you can re-connect to the opened browser window (like if restarting the debug process after adding a new dependency)
+
 
 # Getting Started with Create React App
 

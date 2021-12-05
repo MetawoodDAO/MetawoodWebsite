@@ -5,6 +5,12 @@ import {updateStonerCatData} from "./contracts/StonerCatsContract";
 import {loadGnosisData} from "./gnosis/GnosisController";
 import {updateWeb3State} from "../redux/Web3Slice";
 import {isError} from "../utils/Utils";
+import {Context, createContext} from "react";
+
+// Must be exported from this file to prevent circular dependencies
+type Web3ControllerContext = Context<Web3Controller>;
+// Give undefined as the default value because it will always be overridden
+export const Web3ControllerReactContext: Web3ControllerContext = createContext(undefined as unknown as Web3Controller);
 
 const LISTENERS: ((bundle: ProviderBundle, dispatch: Dispatch)=>void)[] = [
     updateStonerCatData,
@@ -13,23 +19,13 @@ const LISTENERS: ((bundle: ProviderBundle, dispatch: Dispatch)=>void)[] = [
 
 export class Web3Controller {
     private readonly ethereum = getEthereum();
-    private readonly dispatch;
 
-    constructor(dispatch: Dispatch) {
-        this.dispatch = dispatch;
+    constructor(private readonly dispatch: Dispatch) {
         this.attach();
     }
 
-    static showMetamaskAccountPopup(dispatch: Dispatch, ethereum?: InjectedEthereum) {
-        ethereum = ethereum ?? getEthereum();
-        if (ethereum) {
-            return ethereum.request({method: 'eth_requestAccounts'}).catch(err => {
-                const message = err.message ?? "";
-                dispatch(updateWeb3State({connected: false, reason: {reason: "NOT_CONNECTED"}, message}));
-            });
-        } else {
-            dispatch(updateWeb3State({connected: false, reason: {reason: "NOT_INSTALLED"}}));
-        }
+    public showMetamaskAccountPopup() {
+        return this.updateProvider(true, true);
     }
 
     //
@@ -105,30 +101,33 @@ export class Web3Controller {
         const ethereum = this.ethereum;
         if (!ethereum) {
             this.notifyListeners({reason: "NOT_INSTALLED"});
-            //this.dispatch(updateProvider({reason: "NOT_INSTALLED"}));
             return;
         }
 
-        // Then ensure we're on Mainnet
+        // Build a provider object - much easier to interact with
 
         const provider = new ethers.providers.Web3Provider(ethereum);
+
+        // Then ensure we're on Mainnet
+
         const network = await provider.getNetwork();
         const chainId = network.chainId;
 
         if (chainId !== 1) {
+            let message;
             if (askToSwitchNetworks) {
                 try {
                     await this.switchWalletChain(ethereum, "0x1");
                     this.notifyListeners({reason: "PENDING_NETWORK_SWITCH"});
-                    //this.dispatch(updateProvider({reason: "PENDING_NETWORK_SWITCH"}));
+                    // We need to wait for the user to interact with Metamask
                     return;
-                } catch (err) {
+                } catch (err: any) {
                     // User denied the switch.
                     // Fall through to NOT_MAINNET
+                    message = err.message;
                 }
             }
-            this.notifyListeners({reason: "NOT_MAINNET", chainId});
-            //this.dispatch(updateProvider({ reason: "NOT_MAINNET", chainId }));
+            this.notifyListeners({reason: "NOT_MAINNET", chainId}, message);
             return;
         }
 
@@ -137,21 +136,22 @@ export class Web3Controller {
         const availableAccounts = await provider.listAccounts();
 
         if (availableAccounts.length === 0) {
+            let message;
             if (showMetamaskPopup) {
                 try {
                     // Show the Metamask Popup
                     await ethereum.request({method: 'eth_requestAccounts'});
 
                     this.notifyListeners({reason: "PENDING_CONNECTION"});
-                    //this.dispatch(updateProvider({reason: "PENDING_CONNECTION"}));
+                    // We need to wait for the user to interact with Metamask
                     return;
-                } catch (err) {
+                } catch (err: any) {
                     // User clicked "Cancel" on Metamask popup
                     // Fall through to NOT_CONNECTED
+                    message = err.message;
                 }
             }
-            this.notifyListeners({reason: "NOT_CONNECTED"});
-            //this.dispatch(updateProvider({reason: "NOT_CONNECTED"}));
+            this.notifyListeners({reason: "NOT_CONNECTED"}, message);
             return;
         }
 
@@ -161,15 +161,11 @@ export class Web3Controller {
             provider,
             address,
         });
-        //this.dispatch(updateProvider({
-        //    provider,
-        //    address,
-        //}));
     }
 
-    private notifyListeners(bundle: ProviderBundle) {
+    private notifyListeners(bundle: ProviderBundle, message?: string) {
         if (isWeb3Failure(bundle)) {
-            this.dispatch(updateWeb3State({connected: false, reason: bundle}));
+            this.dispatch(updateWeb3State({connected: false, reason: bundle, message}));
         } else {
             this.dispatch(updateWeb3State({connected: true, address: bundle.address}));
         }
@@ -210,7 +206,8 @@ export class Web3Controller {
     }
 
     private readonly chainChanged = async (chainIdHex: string) => {
-        await this.updateProvider(false, false);
+        // We want to show the accounts popup
+        await this.updateProvider(true, false);
     }
 
     private readonly ethMessage = (...args: any) => {

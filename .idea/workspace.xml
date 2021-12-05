@@ -4,24 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5379cf6a-5e2d-4aa0-a8e8-0a481a0430bf" name="Changes" comment="">
+    <list default="true" id="5379cf6a-5e2d-4aa0-a8e8-0a481a0430bf" name="Changes" comment="Removed circular dependencies and added loading spinner">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/GnosisComponent.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/GnosisComponent.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/Header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Header.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/StonerCatCarousel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/StonerCatCarousel.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/StonerCatCarouselItem.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/StonerCatCarouselItem.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ethereum/Web3Controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/Web3Controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ethereum/contracts/OniRoninContract.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/contracts/OniRoninContract.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ethereum/contracts/StonerCatsContract.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/contracts/StonerCatsContract.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ethereum/contracts/base/ERC721.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/contracts/base/ERC721.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ethereum/Web3Types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/Web3Types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ethereum/contracts/ContractTypes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/contracts/ContractTypes.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ethereum/gnosis/GnosisController.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/gnosis/GnosisController.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/redux/GnosisSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/redux/GnosisSlice.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/redux/ReduxStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/redux/ReduxStore.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/redux/StonerCatsSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/redux/StonerCatsSlice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/redux/Web3Slice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/redux/Web3Slice.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,8 +81,8 @@
     <property name="nodejs_interpreter_path" value="node" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="$PROJECT_DIR$/../../Program Files/nodejs/node" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="nodejs_package_manager_path" value="$PROJECT_DIR$/../../Program Files/nodejs/node_modules/npm" />
-    <property name="settings.editor.selected.configurable" value="aws" />
+    <property name="nodejs_package_manager_path" value="yarn" />
+    <property name="settings.editor.selected.configurable" value="settings.nodejs" />
     <property name="ts.external.directory.path" value="D:\Development\nucleusdao\node_modules\typescript\lib" />
   </component>
   <component name="RecentsManager">
@@ -95,7 +90,7 @@
       <recent name="D:\Development\nucleusdao\src\ethereum" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="npm.start">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="WIDTH" value="400" />
       <option name="HEIGHT" value="300" />
@@ -118,6 +113,9 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:3000">
+      <method v="2" />
+    </configuration>
     <configuration default="true" type="TestNG">
       <option name="TEST_OBJECT" value="CLASS" />
       <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
@@ -127,6 +125,21 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="start" type="js.build_tools.npm" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="start" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JavaScript Debug." />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -140,8 +153,16 @@
       <workItem from="1637530828921" duration="64386000" />
       <workItem from="1637952655500" duration="5313000" />
       <workItem from="1638172731769" duration="3765000" />
-      <workItem from="1638327286927" duration="11111000" />
+      <workItem from="1638327286927" duration="23598000" />
     </task>
+    <task id="LOCAL-00001" summary="Removed circular dependencies and added loading spinner">
+      <created>1638666923209</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1638666923209</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -164,5 +185,13 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Removed circular dependencies and added loading spinner" />
+    <option name="LAST_COMMIT_MESSAGE" value="Removed circular dependencies and added loading spinner" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

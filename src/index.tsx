@@ -2,17 +2,18 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import {Web3Controller} from "./ethereum/Web3Controller";
+import {Web3Controller, Web3ControllerReactContext} from "./ethereum/Web3Controller";
 import {Provider} from "react-redux";
 import {Store} from "./redux/ReduxStore";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const web3Controller = new Web3Controller(Store.dispatch);
 
 ReactDOM.render(
   <React.StrictMode>
       <Provider store={Store}>
-        <App />
+          <Web3ControllerReactContext.Provider value={web3Controller}>
+              <App />
+          </Web3ControllerReactContext.Provider>
       </Provider>
   </React.StrictMode>,
   document.getElementById('root')

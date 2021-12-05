@@ -1,5 +1,5 @@
 import {ERC721Token, TokenAttributes} from "./base/ERC721";
-import {BigNumber} from "ethers";
+import {ENSName} from "../Web3Types";
 
 type StonerCatTraits = "Name"|"Eyes"|"Left Arm"|"Right Arm"|"Expressions"|"Collars"|"Backdrops"|"Accessories";
 export interface StonerCat {
@@ -19,8 +19,7 @@ export interface StonerCatAndPoster {
 
 export interface GnosisData {
     balance: string;
-    owners: string[];
-    oniTokenIds: BigNumber[];
+    owners: ENSName[];
     oniTokens: ERC721Token<OniRonin>[];
 }
 

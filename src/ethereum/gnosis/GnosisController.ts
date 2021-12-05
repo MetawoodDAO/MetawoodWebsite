@@ -15,27 +15,9 @@ const GNOSIS_SAFE_ADDRESS = '0x1715f37113C56d7361b1191AEE2B45DA020a85E9';
 
 class GnosisController {
 
-    static with(provider: ethers.providers.Web3Provider): GnosisController {
-        return new GnosisController(provider);
-    }
-
-    private readonly provider;
     private _gnosisAdapter?: EthersAdapter = undefined;
 
-    private constructor(provider: ethers.providers.Web3Provider) {
-        this.provider = provider;
-    }
-
-    private async getSafe(): Promise<Safe> {
-        if (this._gnosisAdapter === undefined) {
-            const signer = this.provider.getSigner();
-            this._gnosisAdapter = new EthersAdapter({
-                ethers,
-                signer,
-            });
-        }
-        return await Safe.create({ethAdapter: this._gnosisAdapter, safeAddress: GNOSIS_SAFE_ADDRESS});
-    }
+    constructor(private readonly provider: ethers.providers.Web3Provider) { }
 
     public async getSafeValue(): Promise<BigNumber> {
         const safe = await this.getSafe();
@@ -56,6 +38,17 @@ class GnosisController {
         const safe = await this.getSafe();
         return await safe.isOwner(address);
     }
+
+    private async getSafe(): Promise<Safe> {
+        if (this._gnosisAdapter === undefined) {
+            const signer = this.provider.getSigner();
+            this._gnosisAdapter = new EthersAdapter({
+                ethers,
+                signer,
+            });
+        }
+        return await Safe.create({ethAdapter: this._gnosisAdapter, safeAddress: GNOSIS_SAFE_ADDRESS});
+    }
 }
 
 export async function loadGnosisData(bundle: ProviderBundle, dispatch: Dispatch) {
@@ -67,19 +60,27 @@ export async function loadGnosisData(bundle: ProviderBundle, dispatch: Dispatch)
     dispatch(setGnosisData({state: "Loading"}));
 
     const {provider} = bundle;
-
-    const gnosisController = GnosisController.with(provider);
     try {
-        const balance = await gnosisController.getSafeValue();
-        const owners = await gnosisController.getOwnerAddresses();
+        const gnosisController = new GnosisController(provider);
 
-        let tokenIds: BigNumber[] = [];
-        let uriData: ERC721Token<OniRonin>[] = []
+        // Load ETH balance
+        const balance = await gnosisController.getSafeValue();
+
+        // Load owners
+        const ownerAddresses = await gnosisController.getOwnerAddresses();
+
+        // See if owners have an ENS name
+        const owners = await Promise.all(ownerAddresses.map(async address => {
+            const name = await provider.lookupAddress(address);
+            return { address, name };
+        }));
+
+        let oniTokens: ERC721Token<OniRonin>[] = [];
         try {
             const oniRoninContract = new OniRoninContract(provider);
-            tokenIds = await oniRoninContract.ERC721.getAllTokenIdsOwnedByAddress(GNOSIS_SAFE_ADDRESS);
+            const tokenIds = await oniRoninContract.ERC721.getAllTokenIdsOwnedByAddress(GNOSIS_SAFE_ADDRESS);
 
-            uriData = await Promise.all(tokenIds.map(async (tokenId) => {
+            oniTokens = await Promise.all(tokenIds.map(async (tokenId) => {
                 return await oniRoninContract.ERC721.fullyResolveURI(tokenId);
             }));
         } catch (err) {
@@ -91,8 +92,7 @@ export async function loadGnosisData(bundle: ProviderBundle, dispatch: Dispatch)
             gnosisData: {
                 balance: balance.toString(),
                 owners,
-                oniTokenIds: tokenIds,
-                oniTokens: uriData,
+                oniTokens,
             }
         }));
     } catch (err) {

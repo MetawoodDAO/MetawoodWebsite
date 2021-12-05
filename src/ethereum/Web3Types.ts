@@ -21,3 +21,8 @@ interface FullProvider {
 }
 
 export type ProviderBundle = FullProvider | Web3FailureReason;
+
+export interface ENSName {
+    address: Address;
+    name: string | null;
+}

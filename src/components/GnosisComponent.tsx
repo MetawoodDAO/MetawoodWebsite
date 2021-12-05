@@ -26,9 +26,9 @@ export function GnosisComponent() {
                 <Text fontWeight={'bold'}>SIGNERS</Text>
                 {gnosisData.owners ?
                     <UnorderedList>
-                        {gnosisData.owners.map((ownerAddress) => {
+                        {gnosisData.owners.map((ownerENSName) => {
                             return <ListItem>
-                                <Text>{ownerAddress}</Text>
+                                <Text>{ownerENSName.name ?? ownerENSName.address}</Text>
                             </ListItem>
                         })}
                     </UnorderedList> : null
@@ -36,7 +36,7 @@ export function GnosisComponent() {
             </Pane>
 
             <Pane border borderWidth={2} margin={8} background={'orangeTint'}>
-                {gnosisData.oniTokenIds && gnosisData.oniTokenIds.length > 0 ?
+                {gnosisData.oniTokens && gnosisData.oniTokens.length > 0 ?
                     <UnorderedList maxHeight={300} overflowY={'scroll'}>
                         {gnosisData.oniTokens.map((oni, ndx) => {
                             return <ListItem>

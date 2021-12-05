@@ -63,9 +63,6 @@ export function asERC721<T>(contract: ethers.Contract): ERC721Contract<T> {
         },
         getAllTokenIdsOwnedByAddress: async function (address: Address): Promise<BigNumber[]> {
             const numberOfTokens = await this.balanceOf(address);
-            if (numberOfTokens.eq(0)) {
-                return [];
-            }
 
             const tokenIds: BigNumber[] = [];
             for (let i = 0; i < numberOfTokens.toNumber(); ++i) {

@@ -1,18 +1,27 @@
-import {createSlice} from "@reduxjs/toolkit";
-import {GnosisData} from "../ethereum/gnosis/GnosisController";
+import {createSlice, Draft, PayloadAction} from "@reduxjs/toolkit";
+import {GnosisData} from "../ethereum/contracts/ContractTypes";
 
-interface DataStructure {
-    gnosisData?: GnosisData;
+interface Loading {
+    state: "Loading";
+}
+interface Loaded {
+    state: "Loaded";
+    gnosisData: GnosisData;
+}
+interface Error {
+    state: "Error";
+    message: string;
 }
 
-const initialState: DataStructure = {};
+type DataStructure = Loading | Loaded | Error;
+type State = {data: DataStructure};
 
 const GnosisSlice = createSlice({
     name: 'Gnosis',
-    initialState,
+    initialState: {data: {state: "Loading"}} as State,
     reducers: {
-        setGnosisData: (state, action) => {
-            state.gnosisData = action.payload;
+        setGnosisData: (state: Draft<State>, action: PayloadAction<DataStructure>) => {
+            state.data = action.payload;
         }
     }
 });

@@ -3,18 +3,13 @@ import Safe, { EthersAdapter } from '@gnosis.pm/safe-core-sdk';
 import {Address, isWeb3Failure, ProviderBundle} from "../Web3Types";
 import {Dispatch} from "@reduxjs/toolkit";
 import {ERC721Token} from "../contracts/base/ERC721";
-import {OniRonin, OniRoninContract} from "../contracts/OniRoninContract";
+import {OniRoninContract} from "../contracts/OniRoninContract";
 import {setGnosisData} from "../../redux/GnosisSlice";
+import {isError} from "../../utils/Utils";
+import {OniRonin} from "../contracts/ContractTypes";
 
 // DOCUMENTATION
 // https://www.npmjs.com/package/@gnosis.pm/safe-core-sdk
-
-export interface GnosisData {
-    balance: string;
-    owners: string[];
-    oniTokenIds: BigNumber[];
-    oniTokens: ERC721Token<OniRonin>[];
-}
 
 const GNOSIS_SAFE_ADDRESS = '0x1715f37113C56d7361b1191AEE2B45DA020a85E9';
 
@@ -65,9 +60,11 @@ class GnosisController {
 
 export async function loadGnosisData(bundle: ProviderBundle, dispatch: Dispatch) {
     if (isWeb3Failure(bundle)) {
-        dispatch(setGnosisData(undefined));
+        dispatch(setGnosisData({state: "Error", message: bundle.reason}));
         return;
     }
+
+    dispatch(setGnosisData({state: "Loading"}));
 
     const {provider} = bundle;
 
@@ -90,13 +87,20 @@ export async function loadGnosisData(bundle: ProviderBundle, dispatch: Dispatch)
         }
 
         dispatch(setGnosisData({
-            balance: balance.toString(),
-            owners,
-            oniTokenIds: tokenIds,
-            oniTokens: uriData,
+            state: "Loaded",
+            gnosisData: {
+                balance: balance.toString(),
+                owners,
+                oniTokenIds: tokenIds,
+                oniTokens: uriData,
+            }
         }));
     } catch (err) {
         console.error(err);
-        dispatch(setGnosisData(undefined));
+        if (isError(err)) {
+            dispatch(setGnosisData({state: "Error", message: err.message}));
+        } else {
+            dispatch(setGnosisData({state: "Error", message: "Unknown error"}));
+        }
     }
 }

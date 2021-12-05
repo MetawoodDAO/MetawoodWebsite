@@ -1,21 +1,14 @@
 import {BigNumber, ethers} from "ethers";
-import {asERC721, ERC721ABI, ERC721Contract, ERC721Token, TokenAttributes} from "./base/ERC721";
+import {asERC721, ERC721ABI, ERC721Contract} from "./base/ERC721";
 import {isWeb3Failure, ProviderBundle} from "../Web3Types";
 import {Dispatch} from "@reduxjs/toolkit";
 import {setCats} from "../../redux/StonerCatsSlice";
+import {StonerCat} from "./ContractTypes";
 
 const STONER_CATS_ADDRESS = "0xD4d871419714B778eBec2E22C7c53572b573706e";
 const STONER_CATS_ABI = [
     "function tokensOfOwner(address _owner) external view returns(uint256[] memory)", // Unnecessary, thanks to helper function in ERC721
 ];
-
-type StonerCatTraits = "Name"|"Eyes"|"Left Arm"|"Right Arm"|"Expressions"|"Collars"|"Backdrops"|"Accessories";
-
-export interface StonerCat {
-    name: string;
-    image: string;
-    attributes: TokenAttributes<StonerCatTraits>[];
-}
 
 class StonerCatsContract {
     private readonly contract: ethers.Contract;
@@ -36,10 +29,6 @@ const STONER_CATS_POSTER_ABI = [
     "function claimable(uint _tokenId) public view returns(bool)"
 ];
 
-export interface StonerCatPoster {
-    claimable: boolean;
-}
-
 class StonerCatsPosterContract {
     private readonly contract;
     private readonly ERC721;
@@ -58,14 +47,8 @@ class StonerCatsPosterContract {
 //
 //
 
-export interface StonerCatAndPoster {
-    cat: ERC721Token<StonerCat>;
-    poster: StonerCatPoster;
-}
-
 export async function updateStonerCatData(providerBundle: ProviderBundle, dispatch: Dispatch) {
     if (isWeb3Failure(providerBundle)) {
-        dispatch(setCats(undefined));
         return;
     }
 

@@ -3,6 +3,7 @@ import { StonerCatCarouselItem } from "./StonerCatCarouselItem";
 import React from "react";
 import {Text} from "evergreen-ui";
 import {useAppSelector} from "../redux/ReduxStore";
+import "./StonerCatCarousel.css";
 
 export function StonerCatCarousel() {
     const cats = useAppSelector(state => state.stonerCats.catsAndPosters);

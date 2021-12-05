@@ -1,17 +1,15 @@
-import {StonerCatAndPoster} from "../ethereum/contracts/StonerCatsContract";
-import {createSlice} from "@reduxjs/toolkit";
+import {createSlice, Draft, PayloadAction} from "@reduxjs/toolkit";
+import {StonerCatAndPoster} from "../ethereum/contracts/ContractTypes";
 
 interface DataStructure {
     catsAndPosters?: StonerCatAndPoster[];
 }
 
-const initialState: DataStructure = {}
-
 const StonerCatsSlice = createSlice({
     name: "StonerCats",
-    initialState,
+    initialState: {} as DataStructure,
     reducers: {
-        setCats: (state, action) => {
+        setCats: (state: Draft<DataStructure>, action: PayloadAction<StonerCatAndPoster[] | undefined>) => {
             state.catsAndPosters = action.payload;
         }
     }

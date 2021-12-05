@@ -1,5 +1,5 @@
 import {Button, Heading, Image, Link, Pane, ShareIcon, Text} from "evergreen-ui";
-import { StonerCatAndPoster } from "../ethereum/contracts/StonerCatsContract";
+import {StonerCatAndPoster} from "../ethereum/contracts/ContractTypes";
 
 export function StonerCatCarouselItem(props: StonerCatAndPoster) {
     const nameAttribute = props.cat.tokenUriData.attributes.find((attr) => {

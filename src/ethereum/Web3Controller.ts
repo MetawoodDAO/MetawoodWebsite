@@ -4,9 +4,7 @@ import {isWeb3Failure, ProviderBundle} from "./Web3Types";
 import {updateStonerCatData} from "./contracts/StonerCatsContract";
 import {loadGnosisData} from "./gnosis/GnosisController";
 import {updateWeb3State} from "../redux/Web3Slice";
-
-export type AccountsChangedHandler = (accounts: Array<string>) => void | Promise<void>;
-export type ChainChangedHandler = (newChainId: number) => void | Promise<void>;
+import {isError} from "../utils/Utils";
 
 const LISTENERS: ((bundle: ProviderBundle, dispatch: Dispatch)=>void)[] = [
     updateStonerCatData,
@@ -22,10 +20,15 @@ export class Web3Controller {
         this.attach();
     }
 
-    public showMetamaskAccountPopup() {
-        const ethereum = this.ethereum;
+    static showMetamaskAccountPopup(dispatch: Dispatch, ethereum?: InjectedEthereum) {
+        ethereum = ethereum ?? getEthereum();
         if (ethereum) {
-            return ethereum.request({method: 'eth_requestAccounts'});
+            return ethereum.request({method: 'eth_requestAccounts'}).catch(err => {
+                const message = err.message ?? "";
+                dispatch(updateWeb3State({connected: false, reason: {reason: "NOT_CONNECTED"}, message}));
+            });
+        } else {
+            dispatch(updateWeb3State({connected: false, reason: {reason: "NOT_INSTALLED"}}));
         }
     }
 
@@ -95,7 +98,7 @@ export class Web3Controller {
     // Setting up the Provider
     //
 
-    public async updateProvider(showMetamaskPopup: boolean, askToSwitchNetworks: boolean): Promise<void> {
+    private async updateProvider(showMetamaskPopup: boolean, askToSwitchNetworks: boolean): Promise<void> {
 
         // First check that there's even an injected 'ethereum' global
 
@@ -182,6 +185,7 @@ export class Web3Controller {
     public attach() {
         const ethereum = this.ethereum;
         if (!ethereum) {
+            this.dispatch(updateWeb3State({connected: false, reason: {reason: "NOT_INSTALLED"}, message: "Could not find injected ethereum object"}));
             return;
         }
 
@@ -190,6 +194,15 @@ export class Web3Controller {
         ethereum.on('message', this.ethMessage);
         ethereum.on('connect', this.connected);
         ethereum.on('disconnect', this.disconnected);
+
+        this.dispatch(updateWeb3State({connected: false, reason: {reason: "NOT_CONNECTED"}, message: "Please connect Metamask"}));
+
+        this.updateProvider(false, false).catch(err => {
+            if (isError(err)) {
+                this.dispatch(updateWeb3State({connected: false, reason: {reason: "NOT_CONNECTED"}, message: err.message}));
+            }
+            console.error(err);
+        });
     }
 
     private readonly accountsChanged = async (accounts: Array<string>) => {

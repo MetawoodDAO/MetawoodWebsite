@@ -1,9 +1,18 @@
 import {useAppSelector} from "../redux/ReduxStore";
-import {ListItem, Pane, Paragraph, Text, UnorderedList} from "evergreen-ui";
+import {ListItem, Pane, Paragraph, Spinner, Text, UnorderedList} from "evergreen-ui";
 import React from "react";
 
 export function GnosisComponent() {
-    const gnosisData = useAppSelector(state => state.gnosis.gnosisData);
+    const data = useAppSelector(state => state.gnosis.data);
+
+    if (data.state === 'Loading') {
+        return (<Spinner />);
+    }
+    if (data.state === 'Error') {
+        return <Text>{data.message}</Text>
+    }
+
+    const gnosisData = data.gnosisData;
 
     return gnosisData !== undefined ?
         <Pane border borderWidth={4} borderRadius={8} marginTop={12}>

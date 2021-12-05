@@ -6,12 +6,13 @@ import {Web3Controller} from "./ethereum/Web3Controller";
 import {Provider} from "react-redux";
 import {Store} from "./redux/ReduxStore";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const web3Controller = new Web3Controller(Store.dispatch);
 
 ReactDOM.render(
   <React.StrictMode>
       <Provider store={Store}>
-        <App connectToMetaMask={() => { web3Controller.showMetamaskAccountPopup(); }} />
+        <App />
       </Provider>
   </React.StrictMode>,
   document.getElementById('root')

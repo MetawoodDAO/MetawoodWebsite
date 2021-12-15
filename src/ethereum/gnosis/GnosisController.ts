@@ -94,7 +94,6 @@ export async function loadGnosisData(bundle: ProviderBundle, dispatch: Dispatch)
         let oniTokens: ERC721Token<OniRonin>[] = [];
         let puftTokenIds: number[] = [];
         try {
-            console.log("Starting on Oni and Puft");
             const oniRoninContract = new OniRoninContract(provider);
             const tokenIds = await oniRoninContract.ERC721.getAllTokenIdsOwnedByAddress(GNOSIS_SAFE_ADDRESS);
             oniTokens = await Promise.all(tokenIds.map(async (tokenId) => {

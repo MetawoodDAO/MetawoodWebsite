@@ -1,6 +1,6 @@
 import {ethers} from "ethers";
 import {Result} from "@ethersproject/abi/lib/coders/abstract-coder";
-import {asERC721, ERC721ABI, ERC721Contract} from "./base/ERC721";
+import {asERC721, ERC721ABI, ERC721Contract, ERC721MetadataABI} from "./base/ERC721";
 import {GhostbustersPuft} from "./ContractTypes";
 import {Address} from "../Web3Types";
 
@@ -11,7 +11,7 @@ export class GhostbustersPuftContract {
     public readonly ERC721: ERC721Contract<GhostbustersPuft>;
 
     constructor(provider: ethers.providers.Web3Provider) {
-        this.contract = new ethers.Contract(GHOSTBUSTERS_PUFT_ADDRESS, ERC721ABI(), provider);
+        this.contract = new ethers.Contract(GHOSTBUSTERS_PUFT_ADDRESS, ERC721ABI(ERC721MetadataABI()), provider);
         this.ERC721 = asERC721(this.contract);
     }
 

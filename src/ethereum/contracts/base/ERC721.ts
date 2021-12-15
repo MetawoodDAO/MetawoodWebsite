@@ -2,15 +2,29 @@ import {Address} from "../../Web3Types";
 import {BigNumber, BigNumberish, ethers} from "ethers";
 import {mergeArrays} from "../../../utils/Utils";
 
+/*
+https://eips.ethereum.org/EIPS/eip-721
+ */
+
 export function ERC721ABI(baseAbi?: string[]): string[] {
     return mergeArrays(baseAbi ?? [], [
-        "function name() public view returns (string memory)",
         "function balanceOf(address owner) public view returns (uint256)",
-        "function tokenURI(uint256 tokenId) public view returns (string memory)",
         "function ownerOf(uint256 tokenId) public view returns (address)",
-        "function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256)",
 
         "event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId)",
+    ]);
+}
+
+export function ERC721MetadataABI(baseAbi?: string[]): string[] {
+    return mergeArrays(baseAbi, [
+        "function name() public view returns (string memory)",
+        "function tokenURI(uint256 tokenId) public view returns (string memory)",
+    ]);
+}
+
+export function ERC721EnumerableABI(baseAbi?: string[]): string[] {
+    return mergeArrays(baseAbi, [
+        "function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256)",
     ]);
 }
 
@@ -25,12 +39,18 @@ export interface ERC721Token<T> {
 }
 
 export interface ERC721Contract<T> {
-    name(): Promise<string>;
+    // Core
     balanceOf(address: Address): Promise<BigNumber>;
-    tokenURI(tokenId: BigNumberish): Promise<string>;
     ownerOf(tokenId: BigNumberish): Promise<Address>;
+
+    // Metadata
+    name(): Promise<string>;
+    tokenURI(tokenId: BigNumberish): Promise<string>;
+
+    // Enumerable
     tokenOfOwnerByIndex(address: Address, index: BigNumberish): Promise<BigNumber>;
 
+    // Custom
     fullyResolveURI(tokenId: BigNumberish): Promise<ERC721Token<T>>;
     getAllTokenIdsOwnedByAddress(address: Address): Promise<BigNumber[]>;
     getAllFullyResolvedTokensOwnedByAddress(address: Address): Promise<ERC721Token<T>[]>;

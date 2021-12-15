@@ -5,10 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5379cf6a-5e2d-4aa0-a8e8-0a481a0430bf" name="Changes" comment="Added in ENS (it was always there)">
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/GnosisComponent.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/GnosisComponent.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ethereum/contracts/ContractTypes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/contracts/ContractTypes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ethereum/contracts/GhostbustersPuftContract.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/contracts/GhostbustersPuftContract.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ethereum/contracts/OniRoninContract.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/contracts/OniRoninContract.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ethereum/contracts/StonerCatsContract.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/contracts/StonerCatsContract.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ethereum/contracts/base/ERC721.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/contracts/base/ERC721.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ethereum/gnosis/GnosisController.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/gnosis/GnosisController.ts" afterDir="false" />
     </list>
@@ -149,7 +150,7 @@
       <workItem from="1638989388639" duration="69000" />
       <workItem from="1638989963287" duration="125000" />
       <workItem from="1638990122809" duration="965000" />
-      <workItem from="1639521383872" duration="6554000" />
+      <workItem from="1639521383872" duration="9829000" />
     </task>
     <task id="LOCAL-00001" summary="Removed circular dependencies and added loading spinner">
       <created>1638666923209</created>

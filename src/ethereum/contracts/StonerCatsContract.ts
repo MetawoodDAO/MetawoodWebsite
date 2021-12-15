@@ -1,5 +1,5 @@
 import {BigNumber, ethers} from "ethers";
-import {asERC721, ERC721ABI, ERC721Contract} from "./base/ERC721";
+import {asERC721, ERC721ABI, ERC721Contract, ERC721EnumerableABI, ERC721MetadataABI} from "./base/ERC721";
 import {isWeb3Failure, ProviderBundle} from "../Web3Types";
 import {Dispatch} from "@reduxjs/toolkit";
 import {setCats} from "../../redux/StonerCatsSlice";
@@ -15,7 +15,7 @@ class StonerCatsContract {
     public readonly ERC721: ERC721Contract<StonerCat>;
 
     constructor(provider: ethers.providers.Web3Provider) {
-        this.contract = new ethers.Contract(STONER_CATS_ADDRESS, ERC721ABI(STONER_CATS_ABI), provider);
+        this.contract = new ethers.Contract(STONER_CATS_ADDRESS, ERC721ABI(ERC721EnumerableABI(ERC721MetadataABI(STONER_CATS_ABI))), provider);
         this.ERC721 = asERC721(this.contract);
     }
 }

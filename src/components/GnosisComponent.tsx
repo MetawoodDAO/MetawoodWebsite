@@ -5,9 +5,9 @@ import {GnosisData} from "../ethereum/contracts/ContractTypes";
 import {ethers} from "ethers";
 
 function buildOniPane(gnosisData: GnosisData) {
-    return (<Pane border borderWidth={2} margin={8} background={'orangeTint'}>
+    return (<Pane border borderWidth={2} margin={4} background={'orangeTint'}>
         {gnosisData.oniTokens && gnosisData.oniTokens.length > 0 ?
-            <UnorderedList maxHeight={300} overflowY={'scroll'}>
+            <UnorderedList maxHeight={300} overflowY={'scroll'} padding={8}>
                 {gnosisData.oniTokens.map((oni, ndx) => {
                     return <ListItem>
                         <Text fontWeight={'bold'}>ONI ID: {oni.tokenId.toString()}</Text>
@@ -24,8 +24,8 @@ function buildOniPane(gnosisData: GnosisData) {
 }
 
 function buildPuftPane(gnosisData: GnosisData) {
-    return (<Pane border borderWidth={2} margin={8} background={'blueTint'}>
-        <UnorderedList maxHeight={300} overflowY={'scroll'}>
+    return (<Pane border borderWidth={2} margin={4} background={'greenTint'} width={"fit-content"}>
+        <UnorderedList maxHeight={300} overflowY={'scroll'} padding={8}>
             {gnosisData.puftTokenIds.map(tokenId => {
                 return (<ListItem>
                     <Text>PUFT ID: {tokenId.toString()}</Text>
@@ -49,17 +49,23 @@ export function GnosisComponent() {
 
     return gnosisData !== undefined ?
         <Pane border borderWidth={4} borderRadius={8} marginTop={12}>
-            <Paragraph marginLeft={18}>
-                <Text>
-                    ETH Balance: {ethers.utils.formatEther(gnosisData.balance)}
+            <Pane margin={4} border borderWidth={2} background={'tealTint'} width={"fit-content"}>
+                <Text fontSize={'large'} fontWeight={'bold'} padding={4}>
+                    Gnosis Vault ETH Balance: {ethers.utils.formatEther(gnosisData.balance)}
                 </Text>
-            </Paragraph>
+            </Pane>
 
-            <Pane border borderWidth={2} margin={6} background={'blueTint'} padding={8}>
+            <Pane border borderWidth={2} margin={4} background={'blueTint'} padding={8} width={"fit-content"}>
                 <Text fontWeight={'bold'}>SIGNERS</Text>
                 <Paragraph>
                     <Text fontFamily={'mono'}>
-                        Current threshold to approve transactions: {gnosisData.threshold}
+                        Current threshold to approve transactions:
+                    </Text>
+                    <Text fontWeight={"bold"} marginLeft={24} marginRight={8}>
+                        {gnosisData.threshold}
+                    </Text>
+                    <Text fontFamily={'mono'}>
+                        out of {gnosisData.owners?.length ?? 'unknown'} signers
                     </Text>
                 </Paragraph>
                 {gnosisData.owners ?

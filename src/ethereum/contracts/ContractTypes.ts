@@ -17,12 +17,6 @@ export interface StonerCatAndPoster {
     poster: StonerCatPoster;
 }
 
-export interface GnosisData {
-    balance: string;
-    owners: ENSName[];
-    oniTokens: ERC721Token<OniRonin>[];
-}
-
 type OniRoninTraits = "Haiku"|"Cloth"|"Armour"|"Shoulders"|"Mask"|"Horns"|"Antennae"|"Crest"|"Wing Straps"|"Soul";
 export interface OniRonin {
     attributes: TokenAttributes<OniRoninTraits>[];
@@ -30,4 +24,23 @@ export interface OniRonin {
     description: string;
     image: string;
     external_url: string;
+}
+
+type GhostbustersPuftTraits = "Background" | "Legs" | "Right Arm" | "Left Arm" | "Body" | "Head" | "Expression" | "Mob";
+export interface GhostbustersPuft {
+    name: string;
+    description: string;
+    image: string;
+    external_url: string;
+    attributes: TokenAttributes<GhostbustersPuftTraits>[];
+}
+
+
+
+export interface GnosisData {
+    balance: string;
+    owners: ENSName[];
+    threshold: number;
+    oniTokens: ERC721Token<OniRonin>[];
+    puftTokenIds: number[];
 }

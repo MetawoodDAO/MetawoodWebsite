@@ -7,6 +7,7 @@ import {OniRoninContract} from "../contracts/OniRoninContract";
 import {setGnosisData} from "../../redux/GnosisSlice";
 import {isError} from "../../utils/Utils";
 import {OniRonin} from "../contracts/ContractTypes";
+import {GhostbustersPuftContract} from "../contracts/GhostbustersPuftContract";
 
 // DOCUMENTATION
 // https://www.npmjs.com/package/@gnosis.pm/safe-core-sdk
@@ -37,6 +38,18 @@ class GnosisController {
     public async isOwner(address: string): Promise<boolean> {
         const safe = await this.getSafe();
         return await safe.isOwner(address);
+    }
+
+    public async getThreshold(): Promise<number> {
+        const safe = await this.getSafe();
+
+        return await safe.getThreshold()
+    }
+
+    private async __testGround_DO_NOT_USE() {
+        const safe = await this.getSafe();
+
+        await safe.getThreshold()
     }
 
     private async getSafe(): Promise<Safe> {
@@ -75,14 +88,26 @@ export async function loadGnosisData(bundle: ProviderBundle, dispatch: Dispatch)
             return { address, name };
         }));
 
+        const threshold = await gnosisController.getThreshold();
+
+
         let oniTokens: ERC721Token<OniRonin>[] = [];
+        let puftTokenIds: number[] = [];
         try {
+            console.log("Starting on Oni and Puft");
             const oniRoninContract = new OniRoninContract(provider);
             const tokenIds = await oniRoninContract.ERC721.getAllTokenIdsOwnedByAddress(GNOSIS_SAFE_ADDRESS);
-
             oniTokens = await Promise.all(tokenIds.map(async (tokenId) => {
                 return await oniRoninContract.ERC721.fullyResolveURI(tokenId);
             }));
+
+            const puftContract = new GhostbustersPuftContract(provider);
+            puftTokenIds = await puftContract.tokenOwner(GNOSIS_SAFE_ADDRESS);
+            /*
+            puftTokens = await Promise.all(puftTokenIds.map(async tokenId => {
+                return await puftContract.ERC721.fullyResolveURI(tokenId);
+            }));
+            */
         } catch (err) {
             console.error(err);
         }
@@ -92,7 +117,9 @@ export async function loadGnosisData(bundle: ProviderBundle, dispatch: Dispatch)
             gnosisData: {
                 balance: balance.toString(),
                 owners,
+                threshold,
                 oniTokens,
+                puftTokenIds,
             }
         }));
     } catch (err) {

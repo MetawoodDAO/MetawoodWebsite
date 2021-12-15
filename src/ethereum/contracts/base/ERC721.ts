@@ -9,6 +9,8 @@ export function ERC721ABI(baseAbi?: string[]): string[] {
         "function tokenURI(uint256 tokenId) public view returns (string memory)",
         "function ownerOf(uint256 tokenId) public view returns (address)",
         "function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256)",
+
+        "event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId)",
     ]);
 }
 

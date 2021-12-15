@@ -4,19 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5379cf6a-5e2d-4aa0-a8e8-0a481a0430bf" name="Changes" comment="Removed circular dependencies and added loading spinner">
+    <list default="true" id="5379cf6a-5e2d-4aa0-a8e8-0a481a0430bf" name="Changes" comment="Added in ENS (it was always there)">
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/GnosisComponent.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/GnosisComponent.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/Header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Header.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ethereum/Web3Controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/Web3Controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ethereum/Web3Types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/Web3Types.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ethereum/contracts/ContractTypes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/contracts/ContractTypes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ethereum/contracts/base/ERC721.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/contracts/base/ERC721.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ethereum/gnosis/GnosisController.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/ethereum/gnosis/GnosisController.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/redux/ReduxStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/redux/ReduxStore.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,6 +45,9 @@
     <bower-package value="" />
     <bower.json value="" />
   </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="ProjectCodeStyleSettingsMigration">
     <option name="version" value="2" />
   </component>
@@ -65,7 +62,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="javascript.nodejs.core.library.configured.version" value="14.18.1" />
-    <property name="javascript.nodejs.core.library.typings.version" value="14.17.34" />
+    <property name="javascript.nodejs.core.library.typings.version" value="14.18.0" />
     <property name="last_opened_file_path" value="$USER_HOME$/AppData/Roaming/Python/Python36/Scripts/sam.exe" />
     <property name="list.type.of.created.stylesheet" value="CSS" />
     <property name="node.js.detected.package.eslint" value="true" />
@@ -82,7 +79,7 @@
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="$PROJECT_DIR$/../../Program Files/nodejs/node" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="yarn" />
-    <property name="settings.editor.selected.configurable" value="settings.nodejs" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
     <property name="ts.external.directory.path" value="D:\Development\nucleusdao\node_modules\typescript\lib" />
   </component>
   <component name="RecentsManager">
@@ -96,6 +93,9 @@
       <option name="HEIGHT" value="300" />
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
       <module />
+    </configuration>
+    <configuration type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:3000">
+      <method v="2" />
     </configuration>
     <configuration name="&lt;template&gt;" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" default="true" selected="false">
       <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m -ea" />
@@ -112,9 +112,6 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
-    </configuration>
-    <configuration type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:3000">
-      <method v="2" />
     </configuration>
     <configuration default="true" type="TestNG">
       <option name="TEST_OBJECT" value="CLASS" />
@@ -135,11 +132,6 @@
       <envs />
       <method v="2" />
     </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="JavaScript Debug." />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -153,7 +145,11 @@
       <workItem from="1637530828921" duration="64386000" />
       <workItem from="1637952655500" duration="5313000" />
       <workItem from="1638172731769" duration="3765000" />
-      <workItem from="1638327286927" duration="23598000" />
+      <workItem from="1638327286927" duration="28086000" />
+      <workItem from="1638989388639" duration="69000" />
+      <workItem from="1638989963287" duration="125000" />
+      <workItem from="1638990122809" duration="965000" />
+      <workItem from="1639521383872" duration="6554000" />
     </task>
     <task id="LOCAL-00001" summary="Removed circular dependencies and added loading spinner">
       <created>1638666923209</created>
@@ -162,7 +158,14 @@
       <option name="project" value="LOCAL" />
       <updated>1638666923209</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Added in ENS (it was always there)">
+      <created>1638694739241</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1638694739241</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -176,7 +179,7 @@
             <State>
               <option name="CUSTOM_BOOLEAN_PROPERTIES">
                 <map>
-                  <entry key="Show.Git.Branches" value="false" />
+                  <entry key="Show.Git.Branches" value="true" />
                 </map>
               </option>
             </State>
@@ -184,11 +187,11 @@
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Removed circular dependencies and added loading spinner" />
-    <option name="LAST_COMMIT_MESSAGE" value="Removed circular dependencies and added loading spinner" />
+    <MESSAGE value="Added in ENS (it was always there)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added in ENS (it was always there)" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
